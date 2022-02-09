@@ -23,12 +23,14 @@ prs_noise = MvNormal(Q)
 obs_noise = MvNormal(R)
 prior_state = MvNormal(m0, P)
 
-X[:, 1] = rand(prior_state)
-Y[:, 1] = H * X[:, 1] .+ rand(obs_noise)
-
-for t = 2:T
-    X[:, t] = A * X[:, t-1] .+ rand(prs_noise)
-    Y[:, t] = H * X[:, t] .+ rand(obs_noise)
+for t = 1:T
+    if t == 1
+        X[:, 1] = A * rand(prior_state) .+ rand(prs_noise)
+        Y[:, 1] = H * X[:, 1] .+ rand(obs_noise)
+    else
+        X[:, t] = A * X[:, t-1] .+ rand(prs_noise)
+        Y[:, t] = H * X[:, t] .+ rand(obs_noise)
+    end
 end
 
 true_filtered = perform_kalman(Y, A, H, m0, P, Q, R)
